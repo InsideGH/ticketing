@@ -1,0 +1,28 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": false,
+  "editor.formatOnPaste": false,
+  "eslint.validate": ["typescript", "typescriptreact"],
+  "cSpell.words": [
+    "auth",
+    "auth depl",
+    "clusterip",
+    "currentuser",
+    "depl",
+    "insidedocker",
+    "insidedocker auth",
+    "kubectl",
+    "kubernetes",
+    "middlewares",
+    "nodemon",
+    "posts",
+    "posts clusterip srv",
+    "router",
+    "signin",
+    "signin router",
+    "signout",
+    "signup",
+    "skaffold",
+    "srv"
+  ]
+}
