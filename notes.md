@@ -21,3 +21,8 @@ CustomError
     - Typescript will guide you on what the requirements are
     - statusCode of number
     - serializeErrors returning array of { message: string; field?: string }
+
+
+Mongoose
+    - when import mongoose first time in VSCode, it suggested to include mongoose types.
+
