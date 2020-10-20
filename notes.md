@@ -148,3 +148,41 @@ TYPESCRIPT
                 }
             }
         }
+
+DOCKER
+    - RUN npm install --only=prod
+        - makes sure that we do not install dev deps even if NODE_ENV is not production
+
+TEST
+    - Single piece of code (unit test)
+        - example: single middleware
+        - Test goal #2: unit test a model.
+    - Pieces are working together
+        - example: multiple middlewares of to and including a route handler.
+    - Different components work together.
+        - example: how auth service interacts with mongoDB or event bus.
+        - Test goal #1: Basic request handling
+            - Make a request and check response and assert database.
+        - Test goal #3: Event emitting + receiving 
+    - Different services work together.
+        - example: Order & Ticketing service works together.
+        - not focus, but test goal #3 simulates this.
+
+    We run them locally
+
+    We use mongo in-memory copy
+        - Why not a single instance of a test mongo db?
+            - Because we have multiple services that concurrently accessing
+              mongodb.
+            - It will run much quickly using memory variant.
+
+    We use supertest library to fake requests to our express app
+        - uses reference to the express app.
+        - problem when testing multiple services at the same time
+          that they all listen to 3000 for example.
+        - 
+
+    Jest
+        - jest --watchAll --no-cache
+            - watch all files and re-run test when change
+            - no-cache is for typescript support to make jest detect file change

@@ -62,7 +62,6 @@ router.post(
      */
     req.session = { jwt: userJwt };
 
-    console.log('signin');
     res.status(200).send(existingUser);
   },
 );
