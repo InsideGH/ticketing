@@ -21,6 +21,16 @@ spec:
         - name: auth
           # latest is default if not specified
           image: insidedocker/auth:latest
+          env:
+            # Name of env variable inside our app 
+            - name: JWT_KEY
+              valueFrom: 
+                secretKeyRef: 
+                  # Name of the secret that we created using the 'kubectl create secret ...'
+                  # If the secret does not exist, the pod will not start (CreateContainerConfigError)
+                  name: jwt-secret
+                  # A secret can have many key/value pairs.
+                  key: JWT_KEY
 ---
 apiVersion: v1
 kind: Service

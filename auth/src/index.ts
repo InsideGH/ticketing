@@ -3,6 +3,7 @@ import 'express-async-errors';
 
 import { json } from 'body-parser';
 import mongoose from 'mongoose';
+import cookieSession from 'cookie-session';
 
 import { currentUserRouter } from './routes/current-user';
 import { signinRouter } from './routes/signin';
@@ -13,7 +14,17 @@ import { errorHandler } from './middlewares/error-handler';
 import { NotFoundError } from './errors/not-found-error';
 
 const app = express();
+
+// tell express to trusts traffic behind a proxy.
+app.set('trust proxy', true);
+
 app.use(json());
+app.use(
+  cookieSession({
+    signed: false,
+    secure: true,
+  }),
+);
 
 app.use(currentUserRouter);
 app.use(signinRouter);
@@ -27,6 +38,10 @@ app.all('*', async () => {
 app.use(errorHandler);
 
 const start = async () => {
+  if (!process.env.JWT_KEY) {
+    throw new Error('JWT_KEY env variable must be defined');
+  }
+
   try {
     await mongoose.connect('mongodb://auth-mongo-srv:27017/auth', {
       // Object that suppresses mongoose deprecation warnings

@@ -4,6 +4,7 @@
   "editor.formatOnPaste": false,
   "eslint.validate": ["typescript", "typescriptreact"],
   "cSpell.words": [
+    "Microservices",
     "auth",
     "auth depl",
     "clusterip",
@@ -18,6 +19,7 @@
     "posts",
     "posts clusterip srv",
     "router",
+    "scrypt",
     "signin",
     "signin router",
     "signout",
