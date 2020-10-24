@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import buildClient from "../api/build-client";
 import Link from "next/link";
 
-export default () => {
+const Header = () => {
   const [currentUser, setCurrentUser] = useState(null);
 
   console.log("currentUser", currentUser);
@@ -43,3 +43,5 @@ export default () => {
     </nav>
   );
 };
+
+export default Header;

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: client-depl
+  name: tickets-mongo-depl
 spec:
   replicas: 1
   # Selector works together with metadata
@@ -9,34 +9,34 @@ spec:
   # The selector/matchLabels tells what pods it should manage (find)
   selector:
     matchLabels:
-      app: client
+      app: tickets-mongo
   # Metadata works together with selector
   # Specifies configuration for creating pods.
   template:
     metadata:
       labels:
-        app: client
+        app: tickets-mongo
     spec:
       containers:
-        - name: client
-          # latest is default if not specified 
-          image: insidedocker/client:latest
+        - name: tickets-mongo
+          # latest is default if not specified
+          image: mongo
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: client-srv
+  name: tickets-mongo-srv
 spec:
   # Default is ClusterIP
   type: ClusterIP
   # Selector works together with DEPL.template.metadata.label
   selector:
-    app: client
+    app: tickets-mongo
   ports:
       # the name is just for logging purposes, can be anything
-    - name: client
+    - name: tickets-mongo
       protocol: TCP
       # the port that Cluster is listening on
-      port: 3000
+      port: 27017
       # the port that pod/container is listening on
-      targetPort: 3000
+      targetPort: 27017

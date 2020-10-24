@@ -61,6 +61,8 @@ Express error handling
         - Use to setup requirement on subclasses
         - Does create a class in JS which we can use it in 'instanceof'
 
+    - last middleware catches and responds with 404.
+
 CustomError
     - Typescript will guide you on what the requirements are
     - statusCode of number
@@ -244,3 +246,6 @@ Adding a new service
     - update skaffold.yaml
     - k8s mongo deployment file
 
+SKAFFOLD
+    - Changing env variables seems buggy. better to restart skaffold.
+    

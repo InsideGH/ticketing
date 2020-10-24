@@ -36,5 +36,7 @@ spec:
       # the name is just for logging purposes, can be anything
     - name: auth-mongo
       protocol: TCP
+      # the port that Cluster is listening on
       port: 27017
+      # the port that pod/container is listening on
       targetPort: 27017

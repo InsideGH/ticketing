@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth-depl
+  name: tickets-depl
 spec:
   replicas: 1
   # Selector works together with metadata
@@ -9,45 +9,45 @@ spec:
   # The selector/matchLabels tells what pods it should manage (find)
   selector:
     matchLabels:
-      app: auth
+      app: tickets
   # Metadata works together with selector
   # Specifies configuration for creating pods.
   template:
     metadata:
       labels:
-        app: auth
+        app: tickets
     spec:
       containers:
-        - name: auth
+        - name: tickets
           # latest is default if not specified
-          image: insidedocker/auth:latest
+          image: insidedocker/tickets:latest
           env:
-            # Name of env variable inside our app 
+            # Name of env variable inside our app
             - name: JWT_KEY
-              valueFrom: 
-                secretKeyRef: 
+              valueFrom:
+                secretKeyRef:
                   # Name of the secret that we created using the 'kubectl create secret ...'
                   # If the secret does not exist, the pod will not start (CreateContainerConfigError)
                   name: jwt-secret
                   # A secret can have many key/value pairs.
                   key: JWT_KEY
-              # the last 'auth' is the name of the database.
+              # the last 'tickets' is the name of the database.
             - name: MONGO_URI
-              value: "mongodb://auth-mongo-srv:27017/auth"
+              value: "mongodb://tickets-mongo-srv:27017/tickets"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: auth-srv
+  name: tickets-srv
 spec:
   # Default is ClusterIP
   type: ClusterIP
   # Selector works together with DEPL.template.metadata.label
   selector:
-    app: auth
+    app: tickets
   ports:
-      # the name is just for logging purposes, can be anything
-    - name: auth
+    # the name is just for logging purposes, can be anything
+    - name: tickets
       protocol: TCP
       # the port that Cluster is listening on
       port: 3000

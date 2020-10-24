@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export default (context) => {
+const buildClient = (context) => {
   if (typeof window === "undefined") {
     // We are on the server
 
@@ -16,3 +16,5 @@ export default (context) => {
     });
   }
 };
+
+export default buildClient;
