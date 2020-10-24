@@ -148,6 +148,8 @@ TYPESCRIPT
                 }
             }
         }
+    - ts-node-dev --poll src/index.ts
+        We added --poll to prevent problems with file change detection in typescript ts-node-dev
 
 DOCKER
     - RUN npm install --only=prod
@@ -186,3 +188,40 @@ TEST
         - jest --watchAll --no-cache
             - watch all files and re-run test when change
             - no-cache is for typescript support to make jest detect file change
+
+Client
+    - we added, but not activated file change fix with polling in next.config.js
+
+
+Namespaces
+    - to organize different object
+    - to reach another object in same namespace
+        - http://auth-srv/api/bla bla
+    - to reach another object in another namespace (cross namespace communication)
+        - k get services -n ingress-nginx
+
+        NAME                                 TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)                      AGE
+        ingress-nginx-controller             LoadBalancer   10.104.32.48   localhost     80:30794/TCP,443:31225/TCP   2d5h
+        ingress-nginx-controller-admission   ClusterIP      10.101.6.9     <none>        443/TCP                      2d5h
+
+        - http://<name of service>.<name space>.svc.cluster.local
+        - http://ingress-nginx-controller.ingress-nginx.svc.cluster.local
+    
+    - OR create an External Nameservice to do the mapping.
+
+    NPM
+        - we write TS
+        - before publish we transpile to JS
+        - publish JS
+
+        - npm login
+        - npm publish --access public 
+        - "main": "./build/index.js",
+            - which file to import
+        - "types": "./build/index.d.ts",
+            - for typescript
+        - "files": ["build/**/*"]
+            - which files to publish
+        
+        - npm version patch
+            - bumps version

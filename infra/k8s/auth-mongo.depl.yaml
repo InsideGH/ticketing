@@ -33,6 +33,7 @@ spec:
   selector:
     app: auth-mongo
   ports:
+      # the name is just for logging purposes, can be anything
     - name: auth-mongo
       protocol: TCP
       port: 27017

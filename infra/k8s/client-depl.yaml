@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth-depl
+  name: client-depl
 spec:
   replicas: 1
   # Selector works together with metadata
@@ -9,42 +9,32 @@ spec:
   # The selector/matchLabels tells what pods it should manage (find)
   selector:
     matchLabels:
-      app: auth
+      app: client
   # Metadata works together with selector
   # Specifies configuration for creating pods.
   template:
     metadata:
       labels:
-        app: auth
+        app: client
     spec:
       containers:
-        - name: auth
-          # latest is default if not specified
-          image: insidedocker/auth:latest
-          env:
-            # Name of env variable inside our app 
-            - name: JWT_KEY
-              valueFrom: 
-                secretKeyRef: 
-                  # Name of the secret that we created using the 'kubectl create secret ...'
-                  # If the secret does not exist, the pod will not start (CreateContainerConfigError)
-                  name: jwt-secret
-                  # A secret can have many key/value pairs.
-                  key: JWT_KEY
+        - name: client
+          # latest is default if not specified 
+          image: insidedocker/client:latest
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: auth-srv
+  name: client-srv
 spec:
   # Default is ClusterIP
   type: ClusterIP
   # Selector works together with DEPL.template.metadata.label
   selector:
-    app: auth
+    app: client
   ports:
       # the name is just for logging purposes, can be anything
-    - name: auth
+    - name: client
       protocol: TCP
       port: 3000
       targetPort: 3000
