@@ -225,3 +225,22 @@ Namespaces
         
         - npm version patch
             - bumps version
+
+        Option1
+            - import { BadRequestError} from "@thelarsson/common/errors/bad-request.error.ts"
+        Option2
+            - import { BadRequestError} from "@thelarsson/common"
+
+        - after services after a common push
+            - npm update @thelarsson/common
+
+
+Adding a new service
+    - package.json
+    - docker file
+    - index.ts
+    - build, push image
+    - k8s deployment file
+    - update skaffold.yaml
+    - k8s mongo deployment file
+
