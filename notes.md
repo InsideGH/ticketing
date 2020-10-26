@@ -249,3 +249,251 @@ Adding a new service
 SKAFFOLD
     - Changing env variables seems buggy. better to restart skaffold.
     
+NATS streaming server
+    - NATS - event sharing only
+    - NATS streaming = NATS + extra
+        - https://docs.nats.io/nats-streaming-concepts/intro
+
+    - node nats streaming NPM lib (not express/axios as our custom event bus project)
+        - https://github.com/nats-io/stan.js
+
+        - Event style of library usage and callback style.
+        - 
+    - channels/topics = subject = name of the channel.
+        - ticket:update channel/topic
+        - ticket:created channel/topic
+        - order:created channel/topic
+        - order:update channel/topic
+
+        - we publish to a channel and get events by subscribing to a channel.
+
+    - Replay events
+        - new service can get all events.
+        - a service crashes and comes up again.
+        - or the nats streaming server crashes.
+
+        - stores all events in memory by default. Can be configured to files or DB mysql/postgres.
+
+Connect into a cluster
+    - option1
+        - ingress update
+    - option2
+        - node port
+    - option3
+        - dev ENV only: setup cluster to portforward
+            - k port-forward nats-depl-778bdd877c-m2jd6 4222:4222
+        - easy to kill it (Ctrl-C)
+
+
+Nats events
+    - message = event
+
+Nats Message
+    - getSequence()
+        - starts with 1 and increments
+    - getData()
+        - get the data json string.
+
+Scaling
+    - vertically
+        - more cpu, ram etc
+    - horizontally
+        - more instances.
+
+NATS and many service replicas
+    - we want the event to be handled by only ONE service instance.
+        - QUEUE GROUPS!
+    - Nats server will only send the event to one of the group members.
+    - Another service might listen to the event as well and will receive it as well.
+    - Default behavior is that an event that is received, is marked as done.
+        - This means that events can get lost if there is a bug or connection error for example.
+        - WE WANT TO CHANGE THIS TO BE ABLE TO REPROCESS IT.
+        - stan.subscriptionOptions().setManualAckMode(true); <------------------------
+            - it's not automatically ack.
+            - if we not, 30 s wait by NATS, then send it to some other member of a queue group (
+                or send event if not queue group)
+            - Same sequence number.
+
+NATS health
+    - http://localhost:8222/streaming
+    - http://localhost:8222/streaming/clientsz
+        {
+            "cluster_id": "ticketing",
+            "server_id": "5XFv6xNXWESge9WyorVlZA",
+            "now": "2020-10-25T17:57:06.958064Z",
+            "offset": 0,
+            "limit": 1024,
+            "count": 3,
+            "total": 3,
+            "clients": [
+                {
+                    "id": "249f0e67",
+                    "hb_inbox": "_INBOX.ZR2PSXE8RRX8J0BWD3U1VM"
+                },
+                {
+                    "id": "7de8ddc8",
+                    "hb_inbox": "_INBOX.B44JPEN8VW09V4SG0Q9DUZ"
+                },
+                {
+                    "id": "abc",
+                    "hb_inbox": "_INBOX.8EZKBX52TLIQ4XXQU2EFNG"
+                }
+            ]
+        }
+    - http://localhost:8222/streaming/channelsz?subs=1
+
+    - If one service in a group dies, the nats server will wait for 30 s for it to come back
+    - But if it was a restart, we now have N+1 subscriptions in the nats server.
+    - After 30 s the nats server gives up and removes the old subscription.
+    - Therefore an event might come out of order, because nats server is waiting to send it until 
+    - the service comes online.
+        - what do do?
+            - heart beat
+                - hbi - how often
+                - hbt - how long time client has to responds
+                - hbf - how many times nats tries.
+            - service SIGINT/SIGTERM -> stan.close()
+                - not 100%.
+
+Event order
+    - While an event is waiting to be sent out due to some service being down
+      other events are sent. Out of order!!!!???
+
+Event concurrency
+    - these are core issues
+        - really challenging to solve
+        - can't solve by using another event bus
+        - 
+    - bank application
+        - event withdraw, event deposit
+        - requirement: amount must be > 0
+        - A +70 -> 70
+        - B +40 -> 110
+        - C -100 -> 10
+
+        - Many ways above can fail
+        - A +70 -> fail due to some reason. We do not ack the event, takes 30s for NATS to do this.
+        - B +40 -> 40
+        - C -100 -> not allowed.
+
+        - Servers are processing differently speeds.
+        - A +70 -> overloaded machine XX ...
+        - B +40 -> overloaded machine XX ...
+        - C -100 -> fast machine YY, out of money.
+
+        - A client is down, but within a heartbeat period (NATS thinks it's alive) 
+        - A +70 -> dead machine XX ...
+        - B +40 -> dead machine XX ...
+        - C -100 -> fast machine YY, out of money.
+       
+        - A +70 tuesday
+        - B +40 wednesday
+        - C -100 friday, but laggy file IO, takes 29.9999 sec, 10 left on account
+            - but now NATS server sends the event to another
+            - -100, not allowed since we only have 10.  
+
+    - async sucks? go sync?
+        - happens with sync as well
+        - happens with monolith as well.
+
+        - Load balancer -> 3 instances -> db
+        - same problem!!!!
+        - just "seem" bigger with async....
+
+    - solution #1
+        - use just one account service instance
+        - same problem with events out of order with one instance.
+    - solution #2
+        - try to solve each problem by code
+    - solution #3
+        - share state between services (redis, db, whatever)
+            - one time processing, in order
+            - other events are held up if unrelated to previous event.
+            - only one update at a time....sloooow.
+        - record seq numbers
+        - the service checks that the previous seq number has been processed before
+          continue.
+    - solution #4
+        - same as above but we track users
+            - one resource/request does not affect others (own sequence pools)
+                - need a channel reserved for jim and mary
+                - max 1000 channels by default, more processing overhead.
+                - Any event bus will have problem to manage this.
+    - solution #5
+        - publisher sends event to NATS, and gets back sequence number (but this is not possible)
+        - it stores this the seq number and event and last seq number.
+        - NATS sends the event o listener
+        - listener stores the "last" processed sequence number.
+
+Solving concurrency
+    - We can't solve it by using NATS
+    - We need to revisit the service design
+    - Redesign the system, a better solution to concurrency stuff will present itself
+
+    - General
+        - Request to modify resource xyz
+        - goes to service that owns xyz
+        - sends event describing change to xyz to NATS
+        - all other services listen to the event
+    
+    - Publisher 
+        - transaction service
+            - stores all transaction in DB for user
+            - emit events that transaction is created (transaction:created { deposit: 70, id, userID, transactionNumber: 1})
+        - account service
+            - listen to 'transaction:create'
+                - balance and last txn number is stored
+                - "does not process if tnx number is wrong"
+        - having tnx number we solved
+            - nats thinks client is alive even if it's dead
+            - one listener runs more quickly than another
+            - one listener fails and we have to wait 30 sek before event is reissued.
+            - different users commit at the same time, since txn number if per user/resource/transaction.
+            - 
+
+Ticket service
+    - create ticket {id: czq, price: 10, v: 1}
+    - A ticket:create {id: czq, price: 10, v: 1}
+    - update ticket {id: czq, price: 50, v: 2}
+    - B ticket:update {id: czq, price: 50, v: 2}
+    - update ticket {id: czq, price: 100, v: 3}
+    - C ticket:update {id: czq, price: 100, v: 3}
+
+Nats
+    - 
+Order service (2 instances)
+    - A event fails
+    - B update event (a does not exist) - timeout
+    - A event ok (v=1)
+    - B(v2) and C(v3) in parallel
+        - B fails
+        - C will not process since v=1
+        - B ok (v2)
+        - C ok (v3)
+
+    >>>>>>>>>>>>>>>>>>> VERSION NUMBER <<<<<<<<<<<<<<<<<<
+
+    The owning service increments it.
+    The other services is storing it, but always "lagging" behind.
+
+Event redelivery
+    - setDeliverAllAvailable
+        - everything is replayed
+            - not feasible
+    - Durable subscription (need setDeliverAllAvailable!!)
+        - NATS record and stores if the event AND IF it has been successfully processed or NOT.
+        - BUT Nats will dump the durable subscription history if the service disconnects!!!
+            - solve it by queue groups
+            - 
+
+-----------------------------------------------------------------------------------
+            const options = stan
+            .subscriptionOptions()
+            .setManualAckMode(true)
+            .setDeliverAllAvailable() <----------------- to get all event in the past. Makes sure that if a new service comes up, it must get all events.
+            .setDurableName('order-service'); <----------------- nats stores events status processed/or not. Good to make sure we don't miss out on events + never re-process events.
+
+            const subscription = stan
+            .subscribe('ticket:created', 'orders-service-queue-group', options); <----------------- queue group to make sure nats doesn't dump the durableEvents
+
+-----------------------------------------------------------------------------------

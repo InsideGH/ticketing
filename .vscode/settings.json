@@ -17,6 +17,7 @@
     "kubernetes",
     "middlewares",
     "mongodb",
+    "nats",
     "nodemon",
     "posts",
     "posts clusterip srv",

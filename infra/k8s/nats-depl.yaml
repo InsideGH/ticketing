@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nats-depl
+spec:
+  replicas: 1
+  # Selector works together with metadata
+  # 'app' is just a key - could be anything
+  # The selector/matchLabels tells what pods it should manage (find)
+  selector:
+    matchLabels:
+      app: nats
+  # Metadata works together with selector
+  # Specifies configuration for creating pods.
+  template:
+    metadata:
+      labels:
+        app: nats
+    spec:
+      containers:
+        - name: nats
+          # latest is default if not specified
+          image: nats-streaming:0.17.0
+          # args that are given to the primary command when a container is build from our image
+          args:
+            [
+              "-p",
+              "4222",
+              "-m",
+              "8222",
+              "-hbi",
+              "5s",
+              "-hbt",
+              "5s",
+              "-hbf",
+              "2",
+              "-SD",
+              "-cid",
+              "ticketing",
+            ]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats-srv
+spec:
+  # Default is ClusterIP
+  type: ClusterIP
+  # Selector works together with DEPL.template.metadata.label
+  selector:
+    app: nats
+  ports:
+    # the name is just for logging purposes, can be anything
+    - name: client
+      protocol: TCP
+      # the port that Cluster is listening on
+      port: 4222
+      # the port that pod/container is listening on
+      targetPort: 4222
+    - name: monitoring
+      protocol: TCP
+      # the port that Cluster is listening on
+      port: 8222
+      # the port that pod/container is listening on
+      targetPort: 8222
