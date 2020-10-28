@@ -497,3 +497,21 @@ Event redelivery
             .subscribe('ticket:created', 'orders-service-queue-group', options); <----------------- queue group to make sure nats doesn't dump the durableEvents
 
 -----------------------------------------------------------------------------------
+
+
+Typescript
+    - Enums!
+    
+Test
+    - not so much to test publishers....they are just requests....
+    - listeners will be in focus
+
+Code structure and typos
+    - put definition of events and event names/subject in COMMON
+    - (not enough to have these in the services only - to big risk of typos)
+    - Without doing this, we must continually during development crosscheck every subject, and field in a event.
+    - Alternatives to using typescript as schema validation
+        - 1) JSON schema (not as good as TS)
+        - 2) Protobuf (not as good as TS)
+        - 3) Apache Avro
+    
