@@ -11,6 +11,7 @@ export class TicketCreatedListener extends Listener<TicketCreatedEvent> {
   queueGroupName = 'payments-service';
 
   onMessage(data: TicketCreatedEvent['data'], msg: Message) {
+    console.log(`[${msg.getSequence()}] message received ${this.subject} / ${this.queueGroupName}`);
     console.log(`[${msg.getSequence()}] event: `, data);
 
     msg.ack();

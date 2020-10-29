@@ -34,6 +34,17 @@ spec:
               # the last 'tickets' is the name of the database.
             - name: MONGO_URI
               value: "mongodb://tickets-mongo-srv:27017/tickets"
+            - name: NATS_URL
+              value: "http://nats-srv:4222"
+            - name: NATS_CLUSTER_ID
+              value: "ticketing"
+            - name: NATS_CLIENT_ID
+              # The value is the name of the pod
+              # k get pods ->
+              # for example: tickets-depl-5f98787649-vtqlm
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
 ---
 apiVersion: v1
 kind: Service

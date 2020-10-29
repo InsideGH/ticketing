@@ -501,6 +501,8 @@ Event redelivery
 
 Typescript
     - Enums!
+    - // This property might be undefined for a while.
+      private _client?: Stan;
     
 Test
     - not so much to test publishers....they are just requests....
@@ -515,3 +517,7 @@ Code structure and typos
         - 2) Protobuf (not as good as TS)
         - 3) Apache Avro
     
+NATS server restart
+    - in memory, just restart it
+    - k delete pod <>
+        - the deployment will start a new one
