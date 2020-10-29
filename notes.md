@@ -521,3 +521,16 @@ NATS server restart
     - in memory, just restart it
     - k delete pod <>
         - the deployment will start a new one
+
+Mongo/mongoose
+    - Two ways to associate
+        - Embed
+            - downsides
+                - querying if a ticket is "in use" requires us to go through 
+                  all orders and check the embedded ticket object.
+                - Inside the order service, there must be tickets that are not 
+                  associated with an order, that are just there since they have 
+                  been created.
+        - Ref/population
+            - Order collection + ticket collection
+                - 
