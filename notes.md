@@ -534,3 +534,32 @@ Mongo/mongoose
         - Ref/population
             - Order collection + ticket collection
                 - 
+
+
+Events out of order
+    - issue when updating events are out of order
+        - solve by having a version number
+        - https://github.com/eoin-obrien/mongoose-update-if-current
+
+    - --------------------> Only the primary service is allowed to increment the version number <-------------------------
+
+    - Its the ticket service that is producing the version numbers, and the order service consuming them.
+
+    - versioning solves the events out of order problem by bouncing back the event to Nats and processing it later.
+
+    - drawback
+        - requires all microservices to use this mongo npm package!!
+
+    - own
+        - https://mongoosejs.com/docs/api/model.html#model_Model-$where
+        - here: orders/src/models/ticket.ts
+
+
+Exec mongo
+    k exec -it orders-mongo-depl-67bd4b4d48-mc7fg mongo
+
+    show dbs
+    use orders
+    db.tickets
+
+    
