@@ -36,6 +36,12 @@ export abstract class Listener<T extends Event> {
       this.subscriptionOptions(),
     );
     subscription.on('message', (msg: Message) => {
+      console.log(
+        `[${msg.getSequence()}] message received ${this.subject} -> ${
+          this.queueGroupName
+        } : ${msg.getData()}`,
+      );
+
       const parsedData = this.parseMessage(msg);
       this.onMessage(parsedData, msg);
       msg.ack();
