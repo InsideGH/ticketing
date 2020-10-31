@@ -572,3 +572,15 @@ Typescripts
     - data duplication mismatch
     - use db transaction + store event in db + separate process that sends events to nats
     - 
+
+Expiration service
+    - setTimeout
+        - if the server restarts, we loose all timers
+    - rely on NATS
+        - not ack, nats redeliver it in 5 seconds.
+        - tracking fails is checking redeliver - this solution will spam this.
+            - will alert engineers
+    - There are other event buses that support publishing with 15 minutes delay (not NATS). Scheduled event.
+        - the order service would just send it self to remind it self.
+    - https://github.com/OptimalBits/bull
+

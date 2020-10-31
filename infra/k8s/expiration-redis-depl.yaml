@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: expiration-redis-depl
+spec:
+  replicas: 1
+  # Selector works together with metadata
+  # 'app' is just a key - could be anything
+  # The selector/matchLabels tells what pods it should manage (find)
+  selector:
+    matchLabels:
+      app: expiration-redis
+  # Metadata works together with selector
+  # Specifies configuration for creating pods.
+  template:
+    metadata:
+      labels:
+        app: expiration-redis
+    spec:
+      containers:
+        - name: expiration-redis
+          # latest is default if not specified
+          image: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: expiration-redis-srv
+spec:
+  # Default is ClusterIP
+  type: ClusterIP
+  # Selector works together with DEPL.template.metadata.label
+  selector:
+    app: expiration-redis
+  ports:
+      # the name is just for logging purposes, can be anything
+    - name: expiration-redis
+      protocol: TCP
+      # the port that Cluster is listening on
+      port: 6379
+      # the port that pod/container is listening on
+      targetPort: 6379

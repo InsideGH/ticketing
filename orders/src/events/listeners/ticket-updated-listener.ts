@@ -10,9 +10,6 @@ export class TicketUpdatedListener extends Listener<TicketUpdatedEvent> {
   queueGroupName = queueGroupName;
 
   async onMessage(data: TicketUpdatedEvent['data'], msg: Message) {
-    console.log(`[${msg.getSequence()}] message received ${this.subject} / ${this.queueGroupName}`);
-    console.log(`[${msg.getSequence()}] event: `, data);
-
     const { title, price } = data;
 
     const ticket = await Ticket.findByEvent(data);
