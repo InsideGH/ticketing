@@ -562,4 +562,13 @@ Exec mongo
     use orders
     db.tickets
 
-    
+
+Typescripts
+    - private/protected
+        - like react context
+    - optional values work better with undefined than with null
+
+#309/#310 Loosing NATS Connection
+    - data duplication mismatch
+    - use db transaction + store event in db + separate process that sends events to nats
+    - 
