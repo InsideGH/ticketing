@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments-mongo-depl
+spec:
+  replicas: 1
+  # Selector works together with metadata
+  # 'app' is just a key - could be anything
+  # The selector/matchLabels tells what pods it should manage (find)
+  selector:
+    matchLabels:
+      app: payments-mongo
+  # Metadata works together with selector
+  # Specifies configuration for creating pods.
+  template:
+    metadata:
+      labels:
+        app: payments-mongo
+    spec:
+      containers:
+        - name: payments-mongo
+          # latest is default if not specified
+          image: mongo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payments-mongo-srv
+spec:
+  # Default is ClusterIP
+  type: ClusterIP
+  # Selector works together with DEPL.template.metadata.label
+  selector:
+    app: payments-mongo
+  ports:
+      # the name is just for logging purposes, can be anything
+    - name: payments-mongo
+      protocol: TCP
+      # the port that Cluster is listening on
+      port: 27017
+      # the port that pod/container is listening on
+      targetPort: 27017

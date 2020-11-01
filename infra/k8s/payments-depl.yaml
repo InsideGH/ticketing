@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments-depl
+spec:
+  replicas: 1
+  # Selector works together with metadata
+  # 'app' is just a key - could be anything
+  # The selector/matchLabels tells what pods it should manage (find)
+  selector:
+    matchLabels:
+      app: payments
+  # Metadata works together with selector
+  # Specifies configuration for creating pods.
+  template:
+    metadata:
+      labels:
+        app: payments
+    spec:
+      containers:
+        - name: payments
+          # latest is default if not specified
+          image: insidedocker/payments:latest
+          env:
+            # Name of env variable inside our app
+            - name: STRIPE_KEY
+              valueFrom:
+                secretKeyRef:
+                  # Name of the secret that we created using the 'kubectl create secret ...'
+                  # If the secret does not exist, the pod will not start (CreateContainerConfigError)
+                  name: stripe-secret
+                  # A secret can have many key/value pairs.
+                  key: STRIPE_KEY
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  # Name of the secret that we created using the 'kubectl create secret ...'
+                  # If the secret does not exist, the pod will not start (CreateContainerConfigError)
+                  name: jwt-secret
+                  # A secret can have many key/value pairs.
+                  key: JWT_KEY
+              # the last 'payments' is the name of the database.
+            - name: MONGO_URI
+              value: "mongodb://payments-mongo-srv:27017/payments"
+            - name: NATS_URL
+              value: "http://nats-srv:4222"
+            - name: NATS_CLUSTER_ID
+              value: "ticketing"
+            - name: NATS_CLIENT_ID
+              # The value is the name of the pod
+              # k get pods ->
+              # for example: payments-depl-5f98787649-vtqlm
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payments-srv
+spec:
+  # Default is ClusterIP
+  type: ClusterIP
+  # Selector works together with DEPL.template.metadata.label
+  selector:
+    app: payments
+  ports:
+    # the name is just for logging purposes, can be anything
+    - name: payments
+      protocol: TCP
+      # the port that Cluster is listening on
+      port: 3000
+      # the port that pod/container is listening on
+      targetPort: 3000

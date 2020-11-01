@@ -584,3 +584,23 @@ Expiration service
         - the order service would just send it self to remind it self.
     - https://github.com/OptimalBits/bull
 
+StripeJS
+    - not need to handle credit card numbers
+    - steps
+        - Credit card number is sent to stripe API
+        - We get back token (authorization to charge credit card). It's a one time use token to charge for money.
+        - Our javascript can submit the token to our payment service.
+        - Out payment service is then using the token to charge the credit card along with an API key
+
+    Secret
+        - kubectl create secret generic stripe-secret --from-literal=STRIPE_KEY=sk_test_51Hij5pDpYqo5qlSL1jtc4tsMdJxNfiXV5ix239ad4yy9QT1QDAQOKCuWn4iocFcbJNq7c4rJm2RdyAwvb4sV1e2i00osSMvRpB
+
+    Charge  
+        - by smallest currency amount
+
+    Test token while stripe account is in test mode
+        -
+        {
+            "orderId": "5f9ee2bfc379a9001854a1b9",
+            "token": "tok_visa"
+        }

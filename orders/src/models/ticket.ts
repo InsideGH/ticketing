@@ -68,6 +68,10 @@ ticketSchema.statics.findByEvent = (event: { id: string; version: number }) => {
 ticketSchema.statics.build = (attrs: TicketAttrs) => {
   const { id, ...rest } = attrs;
 
+  /**
+   * We are replicating the Ticket here, thus we need to 'set' the _id and not let mongoose auto
+   * generate it for us.
+   */
   return new Ticket({
     _id: attrs.id,
     ...rest,
