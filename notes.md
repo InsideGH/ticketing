@@ -615,4 +615,5 @@ Ci/CD
     
     - https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows
 
-    -   
+    - having all tests in a single yml action file will run it in series.
+    
