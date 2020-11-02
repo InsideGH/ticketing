@@ -1,0 +1,14 @@
+name: tests-orders
+
+on:
+  pull_request:
+
+# when ever a pull_request is created, re-opened, updated
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+        # take out all code from project
+      - uses: actions/checkout@v2
+        # run this
+      - run: cd orders && npm install && npm run test:ci
