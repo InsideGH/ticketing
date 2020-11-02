@@ -613,3 +613,6 @@ Ci/CD
     - mono vs separate repos
         - mono git repo is preferred
     
+    - https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows
+
+    -   
