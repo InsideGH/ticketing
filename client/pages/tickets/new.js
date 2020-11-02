@@ -1,52 +1,61 @@
 import { useState } from "react";
-import Router from "next/router";
 import useRequest from "../../hooks/use-request";
-
 import PageWrapper from "../../components/page-wrapper";
 import { getCurrentUser } from "../../api/get-current-user";
+import Router from "next/router";
 
-const SignIn = ({ serverSideProps }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const NewTicket = ({ serverSideProps }) => {
+  const [title, setTitle] = useState("");
+  const [price, setPrice] = useState("");
   const { doRequest, errors } = useRequest({
-    url: "/api/users/signin",
+    url: "/api/tickets",
     method: "post",
     body: {
-      email,
-      password,
+      title,
+      price,
     },
-    onSuccess: () => Router.push("/"),
+    onSuccess: (ticket) => Router.push("/"),
   });
 
-  const onSubmit = async (event) => {
+  const onSubmit = (event) => {
     event.preventDefault();
 
-    await doRequest();
+    doRequest();
+  };
+
+  const onBlur = () => {
+    const value = parseFloat(price);
+
+    if (isNaN(value)) {
+      return;
+    }
+
+    setPrice(value.toFixed(2));
   };
 
   return (
     <PageWrapper serverSideProps={serverSideProps}>
+      <h1>Create ticket</h1>
       <form onSubmit={onSubmit}>
-        <h1>Sign In</h1>
         <div className="form-group">
-          <label>Email Address</label>
+          <label>Title</label>
           <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
             className="form-control"
           />
         </div>
         <div className="form-group">
-          <label>Password</label>
+          <label>Price</label>
           <input
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            type="password"
+            value={price}
+            onBlur={onBlur}
+            onChange={(e) => setPrice(e.target.value)}
             className="form-control"
           />
         </div>
         {errors}
-        <button className="btn btn-primary">Sign In</button>
+        <button className="btn btn-primary">Submit</button>
       </form>
     </PageWrapper>
   );
@@ -55,7 +64,7 @@ const SignIn = ({ serverSideProps }) => {
 export async function getServerSideProps(context) {
   const currentUser = await getCurrentUser(context);
 
-  console.log("[SRV] Signin props", currentUser);
+  console.log("[SRV] New Ticket props", currentUser);
 
   return {
     props: {
@@ -66,4 +75,4 @@ export async function getServerSideProps(context) {
   };
 }
 
-export default SignIn;
+export default NewTicket;

@@ -604,3 +604,8 @@ StripeJS
             "orderId": "5f9ee2bfc379a9001854a1b9",
             "token": "tok_visa"
         }
+
+Stripe
+    - https://stripe.com/docs/testing
+
+    

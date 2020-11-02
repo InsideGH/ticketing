@@ -6,7 +6,7 @@ const PageWrapper = ({ children, serverSideProps }) => {
   return (
     <div>
       <Header currentUser={serverSideProps.currentUser} />
-      {children}
+      <div className="container">{children}</div>
       <Footer currentUser={serverSideProps.currentUser} />
     </div>
   );

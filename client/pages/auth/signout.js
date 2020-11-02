@@ -26,7 +26,7 @@ const SignOut = ({ serverSideProps }) => {
 export async function getServerSideProps(context) {
   const currentUser = await getCurrentUser(context);
 
-  console.log("[SRV] Signoutprops", currentUser);
+  console.log("[SRV] Signout props", currentUser);
 
   return {
     props: {

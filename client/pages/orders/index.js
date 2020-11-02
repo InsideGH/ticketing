@@ -1,34 +1,30 @@
-import PageWrapper from "../components/page-wrapper";
-import { getCurrentUser } from "../api/get-current-user";
-import { getTickets } from "../api/get-tickets";
+import PageWrapper from "../../components/page-wrapper";
+import { getCurrentUser } from "../../api/get-current-user";
+import { getOrders } from "../../api/get-orders";
 import Link from "next/link";
 
-export default function Home({ serverSideProps, tickets }) {
+export default function Orders({ serverSideProps, tickets }) {
   return (
     <PageWrapper serverSideProps={serverSideProps}>
-      <h1>Landing page</h1>
-      {serverSideProps.currentUser ? (
-        <h1>You are signed in</h1>
-      ) : (
-        <h1>You are not signed in</h1>
-      )}
-      <h1>Tickets</h1>
+      <h1>Orders</h1>
       <table className="table">
         <thead>
           <tr>
             <th>title</th>
+            <th>status</th>
             <th>price</th>
             <th>link</th>
           </tr>
         </thead>
         <tbody>
-          {serverSideProps.tickets.map((ticket) => (
-            <tr key={ticket.id}>
-              <td>{ticket.title}</td>
-              <td>{ticket.price}</td>
+          {serverSideProps.orders.map((order) => (
+            <tr key={order.id}>
+              <td>{order.ticket.title}</td>
+              <td>{order.status}</td>
+              <td>{order.ticket.price}</td>
               <td>
-                <Link href={`/tickets/${ticket.id}`}>
-                  <a>{ticket.title}</a>
+                <Link href={`/orders/${order.id}`}>
+                  <a>{order.ticket.title}</a>
                 </Link>
               </td>
             </tr>
@@ -51,15 +47,15 @@ export default function Home({ serverSideProps, tickets }) {
  */
 export async function getServerSideProps(context) {
   const currentUser = await getCurrentUser(context);
-  const tickets = await getTickets(context);
+  const orders = await getOrders(context);
 
-  console.log("[SRV] Home props", currentUser, tickets);
+  console.log("[SRV] Orders props", currentUser, orders.map(o => o.id));
 
   return {
     props: {
       serverSideProps: {
         currentUser,
-        tickets,
+        orders,
       },
     },
   };
