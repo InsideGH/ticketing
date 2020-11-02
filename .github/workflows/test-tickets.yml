@@ -2,6 +2,8 @@ name: tests-tickets
 
 on:
   pull_request:
+    paths:
+      - 'tickets/**' 
 
 # when ever a pull_request is created, re-opened, updated
 jobs:

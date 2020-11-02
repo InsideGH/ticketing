@@ -2,6 +2,8 @@ name: tests-payments
 
 on:
   pull_request:
+    paths:
+      - 'payments/**' 
 
 # when ever a pull_request is created, re-opened, updated
 jobs:

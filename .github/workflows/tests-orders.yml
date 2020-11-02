@@ -2,7 +2,9 @@ name: tests-orders
 
 on:
   pull_request:
-
+    paths:
+      - 'orders/**' 
+      
 # when ever a pull_request is created, re-opened, updated
 jobs:
   build:
