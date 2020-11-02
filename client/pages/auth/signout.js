@@ -2,7 +2,9 @@ import { useEffect } from "react";
 import Router from "next/router";
 import useRequest from "../../hooks/use-request";
 
-export default () => {
+import PageWrapper from "../../components/page-wrapper";
+import { getCurrentUser } from "../../api/get-current-user";
+const SignOut = ({ serverSideProps }) => {
   const { doRequest } = useRequest({
     url: "/api/users/signout",
     method: "post",
@@ -14,5 +16,25 @@ export default () => {
     doRequest();
   }, []);
 
-  return <div>Signing you out...</div>;
+  return (
+    <PageWrapper serverSideProps={serverSideProps}>
+      Signing you out...
+    </PageWrapper>
+  );
 };
+
+export async function getServerSideProps(context) {
+  const currentUser = await getCurrentUser(context);
+
+  console.log("[SRV] Signoutprops", currentUser);
+
+  return {
+    props: {
+      serverSideProps: {
+        currentUser,
+      },
+    },
+  };
+}
+
+export default SignOut;

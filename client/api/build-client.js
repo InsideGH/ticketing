@@ -1,5 +1,8 @@
 import axios from "axios";
 
+/**
+ * This is a isomorphic builder.
+ */
 const buildClient = (context) => {
   if (typeof window === "undefined") {
     // We are on the server

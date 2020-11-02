@@ -1,12 +1,12 @@
 import "../styles/globals.css";
 import "bootstrap/dist/css/bootstrap.css";
 
-import Header from "../components/header";
-
+/**
+ * Adding a custom getInitialProps in your App will disable Automatic Static Optimization in pages without Static Generation.
+ */
 function MyApp({ Component, pageProps }) {
   return (
     <>
-      <Header />
       <Component {...pageProps} />
     </>
   );

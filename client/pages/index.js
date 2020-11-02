@@ -1,24 +1,17 @@
-/**
- * In this case we are using a 'build-client' which handles the fact that
- * we sometime need to have different base urls depending on where we initiate
- * the fetch from.
- *
- * However, for this file, we are only "need" server side fetch.
- */
-import buildClient from "../api/build-client";
+import PageWrapper from "../components/page-wrapper";
+import { getCurrentUser } from "../api/get-current-user";
 
-export default function Home(props) {
-  console.log("[CLIENT] Home props", props);
-
+export default function Home({ serverSideProps }) {
+  console.log("[CLIENT] Home serverSideProps", serverSideProps);
   return (
-    <div>
+    <PageWrapper serverSideProps={serverSideProps}>
       <h1>Landing page</h1>
-      {props.currentUser ? (
+      {serverSideProps.currentUser ? (
         <h1>You are signed in</h1>
       ) : (
         <h1>You are not signed in</h1>
       )}
-    </div>
+    </PageWrapper>
   );
 }
 
@@ -33,12 +26,15 @@ export default function Home(props) {
  *
  */
 export async function getServerSideProps(context) {
-  const client = buildClient(context);
-  const response = await client.get("/api/users/currentuser");
+  const currentUser = await getCurrentUser(context);
 
-  console.log("[SRV] Home props", response.data);
+  console.log("[SRV] Home props", currentUser);
 
   return {
-    props: response.data,
+    props: {
+      serverSideProps: {
+        currentUser,
+      },
+    },
   };
 }
