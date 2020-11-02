@@ -608,4 +608,8 @@ StripeJS
 Stripe
     - https://stripe.com/docs/testing
 
+
+Ci/CD
+    - mono vs separate repos
+        - mono git repo is preferred
     
