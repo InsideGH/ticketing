@@ -7,6 +7,8 @@ import { ExpirationCompleteListener } from './events/listeners/expiration-comple
 import { PaymentCreatedListener } from './events/listeners/payment-created-listener';
 
 const start = async () => {
+  console.log('starting,...');
+  
   if (!process.env.JWT_KEY) {
     throw new Error('JWT_KEY env variable must be defined');
   }
@@ -42,7 +44,7 @@ const start = async () => {
 
     new TicketCreatedListener(natsWrapper.client).listen();
     new TicketUpdatedListener(natsWrapper.client).listen();
-    new ExpirationCompleteListener  (natsWrapper.client).listen();
+    new ExpirationCompleteListener(natsWrapper.client).listen();
     new PaymentCreatedListener(natsWrapper.client).listen();
 
     // mongoose keeps a list of connections, so we can just import mongoose in other places in the code.
