@@ -11,4 +11,4 @@ jobs:
         # take out all code from project
       - uses: actions/checkout@v2
         # run this
-      - run: cd auth && npm install && npm run test
+      - run: cd auth && npm install && npm run test:ci
