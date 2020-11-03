@@ -6,7 +6,7 @@ import Link from "next/link";
 export default function Home({ serverSideProps, tickets }) {
   return (
     <PageWrapper serverSideProps={serverSideProps}>
-      <h1>Landing page</h1>
+      <h1>Landing page!!</h1>
       {serverSideProps.currentUser ? (
         <h1>You are signed in</h1>
       ) : (
