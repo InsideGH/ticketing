@@ -42,7 +42,7 @@ const start = async () => {
 
     new TicketCreatedListener(natsWrapper.client).listen();
     new TicketUpdatedListener(natsWrapper.client).listen();
-    new ExpirationCompleteListener  (natsWrapper.client).listen();
+    new ExpirationCompleteListener(natsWrapper.client).listen();
     new PaymentCreatedListener(natsWrapper.client).listen();
 
     // mongoose keeps a list of connections, so we can just import mongoose in other places in the code.
