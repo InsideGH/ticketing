@@ -1,6 +1,6 @@
 name: deploy-manifests
 
-# when ever we merge a pull request that changed something in auth to master branch (we push to master)
+# when ever we merge a pull request that changed something in infra to master branch (we push to master)
 on:
   push:
     branches: 

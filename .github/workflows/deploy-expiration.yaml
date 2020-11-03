@@ -1,0 +1,34 @@
+name: deploy-expiration
+
+# when ever we merge a pull request that changed something in expiration to master branch (we push to master)
+on:
+  push:
+    branches: 
+      - master
+    paths:
+      - 'expiration/**'
+
+# the ubuntu image comes with docker installed
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        # build image
+      - run: cd expiration && docker build -t insidedocker/expiration .
+        # login to docker
+      - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        # push to docker hub
+      - run: docker push insidedocker/expiration
+        # DO has created a shortcut for us to install doctl in the container
+      - uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+        # connect to DO cluster
+      - run: doctl kubernetes cluster kubeconfig save ticketing
+        # restart our expiration deployment with latest image
+      - run: kubectl rollout restart deployment expiration-depl
+
