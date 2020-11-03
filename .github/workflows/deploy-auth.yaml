@@ -1,0 +1,22 @@
+name: deploy-auth
+
+# when ever we merge a pull request that changed something in auth to master branch (we push to master)
+on:
+  push:
+    branches: 
+      - master
+    paths:
+      - 'auth/**'
+
+# the ubuntu image comes with docker installed
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: cd auth && docker build -t insidedocker/auth .
+      - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - run: docker push insidedocker/auth
