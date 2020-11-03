@@ -615,5 +615,89 @@ Ci/CD
     
     - https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows
 
-    - having all tests in a single yml action file will run it in series.
+    - when having paths in the github action files, all services that have been changed will run, not just the last commits change.
+
+    - Providers
+        - Google
+            - 113$/month
+            - easy
+            - good monitoring
+        - Azure
+            - 72$/month
+            - easy
+            - not used
+        - AWS
+            - expensive 126/month
+            - huge amount of options
+            - huge amount of steps
+            - huge amount of screens, ui, 
+            - all extremely mysterious
+            - documentation is poor
+            - don't understand what fargate is and how it's related to kubernetes.
+            - very bad decision if starting with kubernetes.
+        - Digital ocean 
+            - cheapest 40/month
+            - very easy to use.
+        
+
+Digital ocean
+    - brew install doctl
+    - create a token 
+        - https://cloud.digitalocean.com/account/api/tokens?i=f5a469
+    - use token to init doctl
+        - https://github.com/digitalocean/doctl#authenticating-with-digitalocean
+            - run: doctl auth init
+            - then paste in the token 
+    - Create a context
+        - doctl kubernetes cluster kubeconfig save ticketing
+            > Notice: Adding cluster credentials to kubeconfig file found in "/Users/peterlarsson/.kube/config"
+            > Notice: Setting current-context to do-fra1-ticketing
+        - the above have set the context to point into DO cluster.
     
+    - list all context
+        - k config view
+        - 
+    - change context
+        - k config use-context docker-desktop
+
+    - secrets
+        - kubectl create secret generic jwt-secret --from-literal=JWT_KEY=348f84jF9dfFfh7
+        - kubectl create secret generic stripe-secret --from-literal=STRIPE_KEY=sk_test_51Hij5pDpYqo5qlSL1jtc4tsMdJxNfiXV5ix239ad4yy9QT1QDAQOKCuWn4iocFcbJNq7c4rJm2RdyAwvb4sV1e2i00osSMvRpB
+
+    - ingress
+        - kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.41.0/deploy/static/provider/do/deploy.yaml
+            > namespace/ingress-nginx created
+            > serviceaccount/ingress-nginx created
+            > configmap/ingress-nginx-controller created
+            > clusterrole.rbac.authorization.k8s.io/ingress-nginx created
+            > clusterrolebinding.rbac.authorization.k8s.io/ingress-nginx created
+            > role.rbac.authorization.k8s.io/ingress-nginx created
+            > rolebinding.rbac.authorization.k8s.io/ingress-nginx created
+            > service/ingress-nginx-controller-admission created
+            > service/ingress-nginx-controller created
+            > deployment.apps/ingress-nginx-controller created
+            > validatingwebhookconfiguration.admissionregistration.k8s.io/ingress-nginx-admission created
+            > serviceaccount/ingress-nginx-admission created
+            > clusterrole.rbac.authorization.k8s.io/ingress-nginx-admission created
+            > clusterrolebinding.rbac.authorization.k8s.io/ingress-nginx-admission created
+            > role.rbac.authorization.k8s.io/ingress-nginx-admission created
+            > rolebinding.rbac.authorization.k8s.io/ingress-nginx-admission created
+            > job.batch/ingress-nginx-admission-create created
+            > job.batch/ingress-nginx-admission-patch created
+
+
+Github
+    - create workflow
+        - builds image, docker login, docker push
+            - uses github secret for username and password
+    
+
+    - Github container
+        - install doctl
+        - authorize it with the DO key
+        - use doctl to feed the context into kubectl so that we can communicate with DO 
+        - kubectl comes preinstalled
+    - create a github flow to update image of auth (deploy-auth.yaml)
+    - create a github flow to apply all k8s yaml files (deploy-manifest-yaml)
+    - 
+

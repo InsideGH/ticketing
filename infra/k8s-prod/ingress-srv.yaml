@@ -1,0 +1,47 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-srv
+  # tells the ingress controller to understand that we are providing routing rules
+  # the ingress controller continuously scans the all config files for the annotation
+  # specified below.
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  rules:
+    # specifies that the routing rules are tied to the app at posts.com
+    # a kubernetes cluster can host many domains/apps
+    #
+    # This is an nginx server block that proxy pass traffic
+    # on ticketing.dev -> internal service
+    # and it's the kubernetes network that knows about the services,
+    # that is the DNS of our internal cluster ip services.
+    #
+    # ingress controller only supports routes, not the type.
+    #
+    # Matching is done in the order we specify here.
+    # 
+    - host: thelarsson.com
+      http:
+        paths:
+          - path: /api/payments/?(.*)
+            backend:
+              serviceName: payments-srv
+              servicePort: 3000
+          - path: /api/users/?(.*)
+            backend:
+              serviceName: auth-srv
+              servicePort: 3000
+          - path: /api/tickets/?(.*)
+            backend:
+              serviceName: tickets-srv
+              servicePort: 3000
+          - path: /api/orders/?(.*)
+            backend:
+              serviceName: orders-srv
+              servicePort: 3000
+          - path: /?(.*)
+            backend:
+              serviceName: client-srv
+              servicePort: 3000
