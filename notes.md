@@ -707,3 +707,19 @@ DO
     - The load balancer has an IP 
     - Need to point our domain to it
     
+
+Tear down
+    - Destroy the load balancer
+    - Destroy the cluster
+
+
+Next steps
+    - cert-manager.io
+    - mail service - mailchimp/sendgrid
+        - listen for events - payed for example.
+    - add build step for production mode
+        - Dockerfile.prod
+    -stage cluster
+        - another domain
+        - only accessible by team members
+        - 
