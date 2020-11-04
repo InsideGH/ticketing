@@ -21,6 +21,13 @@ spec:
         - name: client
           # latest is default if not specified 
           image: insidedocker/client:latest
+          env:
+              # Name of env variable inside our app 
+            - name: BASE_URL_SERVER
+              value: "http://ingress-nginx-controller.ingress-nginx.svc.cluster.local"
+              # Name of env variable inside our app 
+            - name: BASE_URL_CLIENT
+              value: "/"
 ---
 apiVersion: v1
 kind: Service

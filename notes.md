@@ -701,3 +701,9 @@ Github
     - create a github flow to apply all k8s yaml files (deploy-manifest-yaml)
     - 
 
+
+DO
+    - A load balancer was created for us when we ran the nginx ingress apply command
+    - The load balancer has an IP 
+    - Need to point our domain to it
+    
