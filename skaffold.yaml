@@ -8,6 +8,7 @@ deploy:
   kubectl:
     manifests:
       - ./infra/k8s/*
+      - ./infra/k8s-dev/*
 # Default skaffold tries to push to docker hub.
 build:
   local:

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-depl
+spec:
+  replicas: 1
+  # Selector works together with metadata
+  # 'app' is just a key - could be anything
+  # The selector/matchLabels tells what pods it should manage (find)
+  selector:
+    matchLabels:
+      app: client
+  # Metadata works together with selector
+  # Specifies configuration for creating pods.
+  template:
+    metadata:
+      labels:
+        app: client
+    spec:
+      containers:
+        - name: client
+          # latest is default if not specified 
+          image: insidedocker/client:latest
+          env:
+              # Name of env variable inside our app 
+            - name: BASE_URL_SERVER
+              value: "http://thelarsson.com"
+              # Name of env variable inside our app 
+            - name: BASE_URL_CLIENT
+              value: "/"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-srv
+spec:
+  # Default is ClusterIP
+  type: ClusterIP
+  # Selector works together with DEPL.template.metadata.label
+  selector:
+    app: client
+  ports:
+      # the name is just for logging purposes, can be anything
+    - name: client
+      protocol: TCP
+      # the port that Cluster is listening on
+      port: 3000
+      # the port that pod/container is listening on
+      targetPort: 3000
