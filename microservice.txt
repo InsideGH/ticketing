@@ -1,0 +1,468 @@
+KEY TAKEAWAYS
+    - Rules
+        - 1) Each service is isolated (totally)
+        - 2) Each service has it's own storage
+    - How is this possible? Data duplication...a lot.
+    - All events are stored in a central place (event bus)
+    - 
+
+
+How to handle errors in one service?
+    - Since all events are stored, we could replay them after the bug is fixed.
+
+
+
+WHAT IS A MICROSERVICE
+
+    Monolith
+        includes [routing, middleware, logic, database access]...to implement ALL features in a app.
+
+    Micro-service
+        includes [routing, middleware, logic, database access]...to implement ONE feature in a app.
+        self contained, even has it's own database...if all other microservices die, it will still work.
+
+
+
+WHY MICROSERVICE?
+    - increase reliability (independent services)
+    - easier to extends (hard in the beginning)
+    - when setup *correctly* and *completely*, less errors in production
+    - easier to scale individual features.
+
+
+
+BIGGEST CHALLENGE
+
+    Data management between microservices is a BIG problem of microservices.
+    
+    Why?
+        We store and access data in a strange way compared to monolith. 2 rules must be followed.
+
+        1) Each microservice has it's own database (database-per-service pattern)
+            - ease scaling of individual databases
+            - and error in one monolith db would affect all microservices
+            - possibility to choose best db variant for the feature.
+
+        2) No cross access of databases
+            - and error in one db does not affect other microservices
+            - service A changing schema, does not affects service B.
+
+    Example
+        Service A
+        Service B
+        Service C
+        Service D needs data from A & B & C. How do we solve that?
+            - Sync (Direct request)
+                - Direct request, for example HTTP request
+                - Up sides
+                    - Easy to understand
+                    - Aggregating service does not need a database
+                - Down sides
+                    - Dependencies between services (one goes down, all fails)
+                    - If one request fails, all fails.
+                    - Only as fast as the slowest request.
+                    - Might lead to huge number of requests.
+
+            - Async (two ways)
+                - Method 1 (not so great)
+                    - Hook up all services to a single event bus
+                    - UserQuery event is sent
+                    - UserQueryResult event is sent
+                    - Method 1 has same downsides as the Sync solution.
+                - Method 2 (bizarre and inefficient)
+                    - Product added event
+                    - User signed up event
+                    - User order created event
+                    - With the above events, Service D has all the data it needs in it's own database.
+                    - Up sides  
+                        - Service D has no dependencies to other services
+                        - Service D is fast
+                    - Down sides
+                        - Data duplication (stale data)
+                        - Harder to understand (more code to write)
+
+
+
+MULTIPLE REQUESTS MINIMIZATION
+
+    We have x post that are fetched from Post service.
+    Each of those, we make a request to the Comment service.
+
+    In a monolith, it's easy, we just make an API change in one place.
+
+    How do we solve this in our microservice architecture?
+        - We can only call either Post or Comment
+        - Sync solution 
+            - Add some code in Post service that fetches (http request for example) from Comment service.
+            - See all downsides above.
+        - Async solution
+            - Create a Query service that receives events from Post and Comments service and aggregates data.
+                - stores data in own database
+                - exports api so that one can query the post and comments in one go.
+            - Up sides
+                - --> Query service has no dependencies, it will be available even if Post or Comment is down <--
+                - Query service is fast
+            - Down sides
+                - data duplication
+                - harder to understand
+        - (GraphQL solution)
+            - Add a GraphQL query service that will (parallel) fetch the data from the other services.
+                - Still Sync solution.
+                - Does this solution replace the microservice with eventbus?
+                    - If one service goes down we get an error in that specific resolver.
+                        - Still not as robust as microservice architecture where data is duplicated.
+                    - Fetching will take longer, even if graphql queries are running in parallel.
+
+    The above is using an event bus
+        Implementations
+            - Rabbit MQ
+            - Kafka
+            - NATS
+        Receives events, publish to listeners
+        Events can be json, raw data, string, etc
+
+
+
+MODERATE A COMMENT
+    
+    Moderate comments
+        - A comment can be in "moderation state" or "rejected state"
+            - Super simple to implement in react but not if the key word it changes a lot
+            - Super simple to implement in comment service, but lets assume we want another service
+            - It might take long to moderate the comment.
+
+        - Option 1, everything is chained into/out from Moderation service
+            - a chain of events. Comment service -> Moderation service -> Query service.
+            - query service does not listen to CommentCreated any longer but CommentModerated.
+            - Down sides
+                - a delay between CommentService and QueryService, the comment will not show up.
+                - Often the case in microservices that there is a delay. 
+
+        - Option 2, default status in QueryService to pending
+            - Then when the CommentModerated event is received, the status in QueryService is updated.
+            - Down sides
+                - The QueryService need to understand how to update based on all events (code dependency)
+                   and lot of logic in the QueryService.
+            - Up sides
+                - No delay
+
+        - Option 3, 
+            - Introducing domain specific event and generic event (update event).
+            - CommentModerated is processed by the Comment service instead.
+            - Comment service is in charge of Comments, the details.
+            - Comment service is emitting CommentUpdated. Just take the payload and store it if you need it.
+            - The moderation service is still moderating and send CommentModerated. The comment service 
+              is the receiving that and sending a CommentUpdated.
+            - WE NEED BETTER TOOLS TO HANDLE ALL DEFINITIONS OF EVENTS.
+
+
+
+HOW TO HANDLE IF SERVICE GOES DOWN
+OR
+HOW TO HANDLE NEW SERVICE THAT NEEDS HISTORY FROM OLDER SERVICES
+
+    Option 1, sync 
+        - New service asks old services for ALL data.
+        - Down sides
+            - The old services needs new code to serve the new service.
+            - Probably the old services don't have all data.
+    Option 2, db direct access
+        - New service gets direct access to all databases (!).
+        - Down sides
+            - Still sync requests
+            - Interfacing potentially different database vendors.
+    Option 3, store events
+        - Eventbus stores all events in a database.
+        - New service can then ask for all events.
+        - Up sides
+            - When a service comes up after a crash, it can ask for all events since last received.
+            - No need code needs to be written.
+            - Introducing new services is easy since they can catch up easily.
+
+
+
+DEPLOYMENT WITH KUBERNETES
+    - We need something that keeps track of all services.
+    - Can create new copies of services.
+
+    - Create 2 Post services and make it easy to communicate with them.
+    - Kubernetes makes communication very easy and launching and scaling.
+
+
+
+DOCKER
+    - Make it easy to install and run SW.
+    - Install and start Redis: docker run -it redis
+    - Container has it's own isolated set of HW.
+    - Docker CLI + Docker server/daemon.
+    - Docker server has image cache.
+    - OS levels
+        - My processes
+        - System calls
+        - Kernel
+        - HW
+    - How to make OS support multiple versions of python for example?
+        - Name-spacing (isolate resources for a group of processes)
+            - HD segmenting
+        - Kernel switches the requests to difference Segments.
+        - Control groups (cgroups) is used to limit amount of resources.
+    - A container is a vertical of the above.
+    - A image
+        - has file snapshots
+        - has run command
+        - When a container is created
+            - the file snapshot is placed on the containers isolated HD segment.
+            - your SW is started and placed in the running processes.
+    - Name-spacing and control groups are Linux specific.
+        - On mac & windows, docker is a virtual linux machine.
+    
+    Docker CLI
+        - docker run busybox ping google.com
+        - docker ps --all
+            - See all containers that have been running.
+        - docker system prune
+        - docker exec -it 99999 redis-cli
+            - stdin/stdout/stderr
+            - -i attach terminal to stdin
+            - -t get nice formatting
+        - all containers has 'sh', most have 'bash'
+        - docker run -it 99999 sh
+            - replaces the default command
+        - docker build -t <user>/<project-name>:<version> .
+            - convention above for "own"
+            - community doesn't have <user>
+            - if no version is specified, latest is used
+            - the "tag" is JUST the version
+        - docker run -p 8080:8090 <image id>
+            - forward all traffic on local network 8080 to 8090 inside container.
+
+    Container lifecycle
+        - docker run = docker create + docker start
+        - create container
+            - only setting up file system snapshot
+        - start
+            - only starting the process
+                - docker start -a <id> // -a give me all output from container
+            - when starting again, the default command is ran again. 
+        - stop
+            - hw signal SIGTERM sent to process and the processes can clean up self.
+            - if not by 10 sec, docker will kill it.
+        - kill
+            - hw signal SIGKILL sent to process, no time for additional work.
+            
+    Docker image
+        - Each step is run in a container of the previous image layer.
+        - Then a snapshot of the file system if saved.
+
+    Container -> image (not used in general - interesting relationship between images and containers)
+        - docker run -it alpine sh
+        - apk add --update redis
+        - open second terminal on host
+        - docker ps (get id)
+        - docker commit -c 'CMD ["redis-service"]' <id>
+            - -c specify default command
+        - output is a new ID (very long)
+        - docker run <new id>
+
+    Dockerfile
+        - alpine tag
+            - a slim variant
+            - get, package manager, text tools, etc...
+        - copy src dst
+            - copy ./ ./
+            - src is relative to build context (the path in your docker build command)
+        - WORKDIR - everything is relative to it.
+            - WORKDIR /usr/app
+                - created automatically if not existing.
+                - ok place
+            - affects commands when using docker exec command as well.
+        - "copy only the bare minimum for every step"
+            - only package.json for the npm install step.
+        
+TYPESCRIPT
+    - catch error during development
+    - get 'autocomplete' in editor
+    - get documentation in editor
+    - get type checks
+    - reuse code in a safer way!!!!! with interfaces.
+    - compiles into javascript
+    - does not do performance optimization
+    - npm install -g typescript ts-node
+    - How to learn
+        - Syntax + features
+            - Like what is an interface
+            - What is the syntax for interface
+        - Design patterns with TS
+            - How to we use interfaces to write reusable code.
+    - Syntax
+        - types
+            - string, number, etc
+            - just a shortcut describing properties + functions that a value has
+                - response.data as Todo
+                    - interface Todo {...}
+            - interface defines a new type
+                - the interface can be a "part of"/subset of the actual object.
+                    - Reportable interface has for example summary function.
+                - most functions will have args typed with interfaces.
+            - categories
+                - primitives: number boolean void...
+                - object types: functions, arrays, classes, objects
+        - type annotation
+            - tell what type of value a variable refer to.
+            - use in 3 cases
+                - when functions return "any" (JSON.parse)
+                - split declaration and assignment
+                - when we need to have a variable with multiple types.
+                    - let foo: boolean | number = false;
+                    - addMarker(mappable: User | company): void {
+                            mappable.<the common functions are available here>
+                        }
+        - type inference
+            - typescript does the work.
+            - if we declare and initialize in one line, typescript figures the type out for us.
+            - functions
+                - TS will only try to figure out the function return value, NOT the incoming args.
+                    - Event if TS does inference on return value, we will NOT use it since if we forget the return, it will infer void.
+            - TS checks that the argument object actually fulfills the required interface (we do not need to specify that the argument implements the interface) 
+        - arrays
+            - contain only one type.
+            - type inference helps when pulling a value out of an array.
+            - prevents incompatible values on insertion.
+            - helps with map/foreach etc.
+        - classes
+            - Blueprint to create objects with fields and functions.
+            - use private to restrict other developers from using it.
+                - same as limiting dependencies between folders.
+        - npm modules
+            - a "type definition file" describes what functions and args are used, like and adapter.
+            - axios by default includes a type definition file".
+            - there are a bunch of these out there...in the project "Definitely Typed Naming Scheme"
+            - WE GET AUTOCOMPLETE!
+            - index.d.ts - type definition files.
+        - global scope
+            - script tags for example
+            - @types/googlemaps
+
+KUBERNETES
+    - search for the image locally first, then docker hub.
+    - Pod - Container - basically the same thing.
+    - To manage our Post pods, kubernetes created a DEPLOYMENT (from our config file). Then DEPLOYMENT creates our pods and re-creates if some die. It also handles updates.
+    - To make it easy to communicate between different type of pods (eventbus <-> post), kubernetes creates a Service that fronts the pods.
+
+    - kubectl apply -f posts.yaml (docker run)
+    - kubectl get pods (docker ps)
+    - kubectl logs posts (docker logs)
+    - kubectl exec -it <name> sh(docker exec -it <name> sh)
+    - To restart a pod - kubectl delete pod :: kubectl delete pod posts
+
+    - pod file
+        - if image has specific version, it checks on local machine first. If latest or not specified, it checks on docker hub.
+        - A pod can have multiple containers. If one, metadata.name == spec.containers[0].name is ok.
+
+    Deployments
+        - k get deployments 
+        - if a pod is deleted, the deployment creates a new
+        - k describe deployment
+        - k delete deployments posts-depl
+            - all pods are deleted as well.
+        - k rollout restart deployment <depl name>
+    
+    Preferred deployment Method
+        - make change in code
+        - push image to docker hub
+        - k rollout restart deployment <depl name>
+
+    Service
+        - types
+            - cluster
+                - cluster internal comm between pods
+            - node port
+                - external access, development purposes
+            - load balancer 
+                - right way (little more config than node port)
+            - external name
+                - advanced corner case
+        
+        - NodePort service (JUST FOR DEVELOPMENT)
+
+            NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+            kubernetes   ClusterIP   10.96.0.1       <none>        443/TCP          20h
+            posts-srv    NodePort    10.105.79.153   <none>        4000:31476/TCP   21s
+
+            access service:
+                mac
+                    localhost:31476/posts
+                linux
+                    <minikube ip>:31476/posts
+        
+        - To access a service   
+            - use it's name (k get services)
+    
+    Pod 
+        - We don't know which IP it gets, it's random.
+          Thus we need to comm through the pods Cluster IP Services.
+
+    Ingress/Ingress controller
+        - a pod with a set of routing rules to distribute traffic to other services
+        - the load balancer send the request to ingress controller.
+        - checks the path and sends request onto one pod (cluster ip service)
+    load balancer service
+        - tells kubernetes to reach out to its provider and provision a load balancer. 
+          gets traffic into a single pod.
+        - asks the cloud provider (aws, google azure) to provision a load balancer.
+        - exists outside the cluster
+        - takes traffic from outside, into one pod.
+    
+    ingress-nginx (NOT kubernetes-ingress)
+        - combined loadbalancer + ingress controller
+        - Run this->
+            kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.40.2/deploy/static/provider/cloud/deploy.yaml
+        - Run this to delete it ->
+            k delete --all deployments --namespace=ingress-nginx
+        - Now we have loadbalancer and ingress controller, but no routing rules
+            - routing rules in ingress-srv.yaml
+            - k apply -f ingress-srv.yaml
+        - We can host many different domain inside a single kubernetes cluster
+            - my-app.com
+            - post-tracker.com
+            - blog-app.com
+        - the spec.rules.host in the ingress-src.yaml specifies that the routing rules are tied to the app at posts.com
+            - we need to put posts.com in etc/hosts
+        - Uses a temporary ssl certificate
+            - ok to use https but need to turn of ssl verification in postman.
+        
+
+SKAFFOLD
+    - Dev environment
+    - Easy to update code in running pod
+    - Easy to switch between project. (delete object in cluster).
+    - https://skaffold.dev/docs/install/
+
+    - start command: skaffold dev
+    - Skaffold copies changed files into our pods.
+
+LESSONS LEARNED FROM FIRST APP
+    - The big challenge in microservices is data.
+    - Different ways to share data between services.
+        - Sync: easy to implement.
+        - Async: more dynamic, no dependencies.
+    - Kubernetes makes it easy to deploy and scale over time.
+
+PAINFUL THINGS FROM FIRST APP
+    - Lot of duplicated code.
+        - express, route handlings,
+        - SOLUTION: central library as an NPM module
+    - Hard to understand the flow of events.
+        - SOLUTION: define all events in the shared library
+    - Hard to remember what properties an event should have
+        - really easy to make a typo
+        - SOLUTION: everything typescript
+    - Hard to test some event flows.
+        - to test moderation: we had to create post, create comment, refresh page, etc
+        - SOLUTION: write tests
+    - Slow computer running kubernetes
+        - SOLUTION: run in cloud, almost as quickly as local
+    - Out of order of events? Could it break the app?
+        - what if the CommentCreated event reaches the query service BEFORE PostCreated event???
+        - Or: the comment service assumes there exist a post in it's data structure.
+        - SOLUTION: data consistency focus from now on!

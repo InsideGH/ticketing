@@ -15,6 +15,7 @@
     "insidedocker auth",
     "kubectl",
     "kubernetes",
+    "letsencrypt",
     "middlewares",
     "mongodb",
     "nats",

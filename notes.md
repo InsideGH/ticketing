@@ -593,7 +593,7 @@ StripeJS
         - Out payment service is then using the token to charge the credit card along with an API key
 
     Secret
-        - kubectl create secret generic stripe-secret --from-literal=STRIPE_KEY=sk_test_51Hij5pDpYqo5qlSL1jtc4tsMdJxNfiXV5ix239ad4yy9QT1QDAQOKCuWn4iocFcbJNq7c4rJm2RdyAwvb4sV1e2i00osSMvRpB
+        - kubectl create secret generic stripe-secret --from-literal=STRIPE_KEY=<the secret>
 
     Charge  
         - by smallest currency amount
@@ -662,7 +662,7 @@ Digital ocean
 
     - secrets
         - kubectl create secret generic jwt-secret --from-literal=JWT_KEY=348f84jF9dfFfh7
-        - kubectl create secret generic stripe-secret --from-literal=STRIPE_KEY=sk_test_51Hij5pDpYqo5qlSL1jtc4tsMdJxNfiXV5ix239ad4yy9QT1QDAQOKCuWn4iocFcbJNq7c4rJm2RdyAwvb4sV1e2i00osSMvRpB
+        - kubectl create secret generic stripe-secret --from-literal=STRIPE_KEY=<the secret>
 
     - ingress
         - kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.41.0/deploy/static/provider/do/deploy.yaml
