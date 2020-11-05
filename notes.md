@@ -723,3 +723,83 @@ Next steps
         - another domain
         - only accessible by team members
         - 
+
+Ingress
+    - Ingress Resource
+         - Defines the rules for routing
+    - Ingress Controller
+        - Implements the above rules
+    - Popular choices
+        - nginx, contour, haproxy, traefik
+        - 
+    - The ingress controller creates a load balancer that provisions Digital Ocean load balancer.
+
+    - Begin with: creating the Nginx Ingress Controller Kubernetes resources
+        - kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.34.1/deploy/static/provider/do/deploy.yaml
+        - Will create ConfigMaps containing the controllers configuration, RBCA roles, + Ingress controller deployment
+        - Will create a Digital Ocean load balancer that can receive external traffic.
+
+    - Next step is to write the ingress-srv.yaml file
+        - Create routing rules + enable internal pod communication through the load balancer.
+
+SSL
+    - Certificates can be automatically requested and configured by annotating Ingress Resources (in ingress-srv.yaml), appending a tls section to the Ingress spec, and configuring one or more Issuers or ClusterIssuers to specify your preferred certificate authority. 
+
+    - there are staging and prod certs
+        - difference 
+            https://community.letsencrypt.org/t/using-lets-encrypt-staging-certificates-on-internal-testing-staging-development-environments/7981/7
+
+
+    - install cert manager (prod)
+
+    kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.16.1/cert-manager.yaml
+        customresourcedefinition.apiextensions.k8s.io/certificaterequests.cert-manager.io created
+        customresourcedefinition.apiextensions.k8s.io/certificates.cert-manager.io created
+        customresourcedefinition.apiextensions.k8s.io/challenges.acme.cert-manager.io created
+        customresourcedefinition.apiextensions.k8s.io/clusterissuers.cert-manager.io created
+        customresourcedefinition.apiextensions.k8s.io/issuers.cert-manager.io created
+        customresourcedefinition.apiextensions.k8s.io/orders.acme.cert-manager.io created
+        namespace/cert-manager created
+        serviceaccount/cert-manager-cainjector created
+        serviceaccount/cert-manager created
+        serviceaccount/cert-manager-webhook created
+        clusterrole.rbac.authorization.k8s.io/cert-manager-cainjector created
+        clusterrole.rbac.authorization.k8s.io/cert-manager-controller-issuers created
+        clusterrole.rbac.authorization.k8s.io/cert-manager-controller-clusterissuers created
+        clusterrole.rbac.authorization.k8s.io/cert-manager-controller-certificates created
+        clusterrole.rbac.authorization.k8s.io/cert-manager-controller-orders created
+        clusterrole.rbac.authorization.k8s.io/cert-manager-controller-challenges created
+        clusterrole.rbac.authorization.k8s.io/cert-manager-controller-ingress-shim created
+        clusterrole.rbac.authorization.k8s.io/cert-manager-view created
+        clusterrole.rbac.authorization.k8s.io/cert-manager-edit created
+        clusterrolebinding.rbac.authorization.k8s.io/cert-manager-cainjector created
+        clusterrolebinding.rbac.authorization.k8s.io/cert-manager-controller-issuers created
+        clusterrolebinding.rbac.authorization.k8s.io/cert-manager-controller-clusterissuers created
+        clusterrolebinding.rbac.authorization.k8s.io/cert-manager-controller-certificates created
+        clusterrolebinding.rbac.authorization.k8s.io/cert-manager-controller-orders created
+        clusterrolebinding.rbac.authorization.k8s.io/cert-manager-controller-challenges created
+        clusterrolebinding.rbac.authorization.k8s.io/cert-manager-controller-ingress-shim created
+        role.rbac.authorization.k8s.io/cert-manager-cainjector:leaderelection created
+        role.rbac.authorization.k8s.io/cert-manager:leaderelection created
+        role.rbac.authorization.k8s.io/cert-manager-webhook:dynamic-serving created
+        rolebinding.rbac.authorization.k8s.io/cert-manager-cainjector:leaderelection created
+        rolebinding.rbac.authorization.k8s.io/cert-manager:leaderelection created
+        rolebinding.rbac.authorization.k8s.io/cert-manager-webhook:dynamic-serving created
+        service/cert-manager created
+        service/cert-manager-webhook created
+        deployment.apps/cert-manager-cainjector created
+        deployment.apps/cert-manager created
+        deployment.apps/cert-manager-webhook created
+        mutatingwebhookconfiguration.admissionregistration.k8s.io/cert-manager-webhook created
+        validatingwebhookconfiguration.admissionregistration.k8s.io/cert-manager-webhook created
+
+    kubectl get pods --namespace cert-manager
+        NAME                                      READY   STATUS    RESTARTS   AGE
+        cert-manager-cainjector-fc6c787db-vztzg   1/1     Running   0          66s
+        cert-manager-d994d94d7-g8dsd              1/1     Running   0          66s
+        cert-manager-webhook-845d9df8bf-qnhtm     1/1     Running   0          66s
+
+    - Issuing certificate
+    -  A ClusterIssuer is not namespace-scoped and can be used by Certificate resources in any namespace.
+
+    
