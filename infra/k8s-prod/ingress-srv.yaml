@@ -1,6 +1,10 @@
 # This part is called the "Ingress Resource"
 # Here we specify routing rules
 # We create an Ingress resource called 'ingress-srv' and route traffic based on host header.
+# 
+# networking.k8s.io/v1beta1 == 1.14 to 1.18
+# networking.k8s.io/v1 = 1.19+
+
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
@@ -11,14 +15,14 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/use-regex: "true"
-    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
-  # tls:
-  #   # specify the hosts for which we want to acquire certificates
-  # - hosts:
-  #   - thelarsson.com
-  #   # This secret will contain the TLS private key and issued certificate
-  #   secretName: thelarsson-tls
+  tls:
+    # specify the hosts for which we want to acquire certificates
+  - hosts:
+    - thelarsson.com
+    # This secret will contain the TLS private key and issued certificate
+    secretName: letsencrypt-prod
   rules:
     # specifies that the routing rules are tied to the app at posts.com
     # a kubernetes cluster can host many domains/apps

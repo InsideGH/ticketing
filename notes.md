@@ -802,4 +802,12 @@ SSL
     - Issuing certificate
     -  A ClusterIssuer is not namespace-scoped and can be used by Certificate resources in any namespace.
 
+
+    - Roll out the issuer (on prod)
+       - kubectl create -f infra/k8s-prod/prod-issuer.yaml 
+         >clusterissuer.cert-manager.io/letsencrypt-prod created
     
+    - get the cert (we added tls section in ingress.srv.yaml)
+    - kubectl apply -f infra/k8s-prod/ingress-srv.yaml 
+      > ingress.networking.k8s.io/ingress-srv configured
+      > service/ingress-nginx-controller unchanged
