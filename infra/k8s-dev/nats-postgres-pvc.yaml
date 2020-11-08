@@ -3,7 +3,8 @@ kind: PersistentVolume
 metadata:
   name: nats-postgres-pv
 spec:
-  storageClassName: "local-storage"
+  # empty string means use no StorageClass, we want to bind this pv-pvc
+  storageClassName: ""
   capacity:
     # The PVC size must match PV size.
     storage: 500Mi
@@ -12,7 +13,10 @@ spec:
   hostPath:
     # it must be /tmp/.*
     # otherwise the delete of the PV will fail when skaffold is terminating.
-    path: "/tmp/ticketing/nats-postgres-data"
+    path: "/tmp/ticketing/nats"
+  claimRef:
+    name: nats-postgres-pvc
+    namespace: default
 ---
 # If no storageClassName is defined it will use default storage class
 # List storage classes: 
@@ -45,7 +49,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: nats-postgres-pvc
 spec:
-  storageClassName: "local-storage"
+  # empty string means use no StorageClass, we want to bind this pv-pvc
+  storageClassName: ""
   accessModes:
     - ReadWriteOnce
   resources:

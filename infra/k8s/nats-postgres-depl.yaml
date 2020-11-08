@@ -41,12 +41,17 @@ spec:
                   name: nats-db-passwd-secret
                   key: NATS_DB_PASSWD
           volumeMounts:
-              # select which volume that should be mounted into 'mountPath'
+            # select which volume that should be mounted into 'mountPath'
             - name: nats-postgres-data
+              # mount the volume/subPath into ->
+              # This means that the volume root will have a subfolder 'postgres' where all content will be located
+              # Without a subPath, there was no need to create the directory specified by PV spec.hostPath.path.
+              # With a subPath, I had to create the directory(!?)
+              # Reason for subPath is that Digital Ocean PV wasn't empty and postgres complained about it (lost&found folder).
               mountPath: /var/lib/postgresql/data
               subPath: postgres
       volumes:
-          # name the volume so that it can be referenced above and specify the claim
+        # name the volume so that it can be referenced above and specify the claim
         - name: nats-postgres-data
           persistentVolumeClaim:
             claimName: nats-postgres-pvc
@@ -62,7 +67,7 @@ spec:
   selector:
     app: nats-postgres
   ports:
-      # the name is just for logging purposes, can be anything
+    # the name is just for logging purposes, can be anything
     - name: nats-postgres
       protocol: TCP
       # the port that Cluster is listening on

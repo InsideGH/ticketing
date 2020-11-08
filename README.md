@@ -4,7 +4,9 @@ This repo contains the output from the Udemy course [Microservices with NodeJS a
 
 + Added TLS support on production cluster.
 + The NextJS client setup is more inline with 5-nov-2020 version of NextJS with static/hybrid/client ways of rendering pages.
-+ Nats streaming server with postgres SQL storage (instead of in-memory). Using initContainer to wait for database connection before starting nats streaming server. The postgres pod is using local storage PVC locally and Digital Ocean block storage (do-block-storage) in production cluster.
++ NextJS in production is using production build.
++ Nats streaming server with postgres SQL storage (instead of in-memory). Using initContainer to wait for database connection before starting nats streaming server. The postgres pod is using PV/PVC locally and Digital Ocean block storage (do-block-storage) PVC in production cluster.
++ All microservices using mongodb (auth, orders, payments, tickets) using PV/PVC locally and Digital Ocean block storage (do-block-storage) PVC in production cluster.
 
 # Get going on a clean kubernetes cluster
 
@@ -57,7 +59,7 @@ Since the Nats streaming server is configured to use postgres as data store we n
 
 > Start by creating the folder on your local machine:
 
-```mkdir -p /tmp/ticketing2/nats-postgres-data```
+```mkdir -p /tmp/ticketing/nats /tmp/ticketing/auth /tmp/ticketing/orders /tmp/ticketing/payments /tmp/ticketing/tickets```
 
 
 > Bring up the postgres database:
