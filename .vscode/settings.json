@@ -6,6 +6,8 @@
   "cSpell.words": [
     "Microservices",
     "PGDATA",
+    "PV's",
+    "Udemy",
     "auth",
     "auth depl",
     "clusterip",
@@ -23,6 +25,7 @@
     "kubernetes",
     "letsencrypt",
     "middlewares",
+    "mkdir",
     "mongodb",
     "nats",
     "nodemon",
@@ -41,6 +44,7 @@
     "srv",
     "sslmode",
     "storageclasses",
+    "subfolder",
     "thelarsson"
   ]
 }
