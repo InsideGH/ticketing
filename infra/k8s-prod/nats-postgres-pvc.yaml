@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nats-postgres-pvc
+spec:
+  storageClassName: do-block-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+# k get pv
+# NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                       STORAGECLASS       REASON   AGE
+# pvc-5c344dbe-ae2a-4914-9524-aac98c735c78   1Gi        RWO            Delete           Bound    default/nats-postgres-pvc   do-block-storage            3s
+# 
+# k get pvc
+# NAME                STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS       AGE
+# nats-postgres-pvc   Bound    pvc-5c344dbe-ae2a-4914-9524-aac98c735c78   1Gi        RWO            do-block-storage   9s

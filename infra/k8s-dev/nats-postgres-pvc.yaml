@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nats-postgres-pv
+spec:
+  storageClassName: "local-storage"
+  capacity:
+    # The PVC size must match PV size.
+    storage: 500Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    # it must be /tmp/.*
+    # otherwise the delete of the PV will fail when skaffold is terminating.
+    path: "/tmp/ticketing/nats-postgres-data"
+---
+# If no storageClassName is defined it will use default storage class
+# List storage classes: 
+# 
+# kubectl get storageclasses
+# 
+# NAME                 PROVISIONER          
+# hostpath (default)   docker.io/hostpath
+# 
+# A PV and a PVC will be created
+# 
+# PV ->
+# NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                 STORAGECLASS
+# pvc-9eb99f61-d42a-40dd-ad3d-46725d3ad386   50Mi       RWO            Delete           Bound    default/nats-postgres-pvc   hostpath     
+# 
+# PVC ->
+# NAME          STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS
+# nats-postgres-pvc   Bound    pvc-9eb99f61-d42a-40dd-ad3d-46725d3ad386   50Mi       RWO            hostpath
+# 
+# If the PVC is deleted, the PV is deleted as well.
+# 
+# --------------------------------------------------------------------
+# 
+# If storageClassName: "hostpath" is will behave just as above because we are specifying the default SC.
+# 
+# --------------------------------------------------------------------
+# 
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nats-postgres-pvc
+spec:
+  storageClassName: "local-storage"
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      # The PVC size must match PV size.
+      storage: 500Mi

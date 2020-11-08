@@ -1,0 +1,32 @@
+# Local volumes do not currently support dynamic provisioning, 
+# however a StorageClass should still be created to delay volume binding 
+# until Pod scheduling. This is specified by the WaitForFirstConsumer volume 
+# binding mode.
+# 
+# Delaying volume binding allows the scheduler to consider all of a Pod's 
+# scheduling constraints when choosing an appropriate PersistentVolume 
+# for a PersistentVolumeClaim.
+
+# Local volumes can only be used as a statically created PersistentVolume. 
+# Dynamic provisioning is not supported.
+# 
+# A PV can have a class, which is specified by setting the storageClassName 
+# attribute to the name of a StorageClass. A PV of a particular class can 
+# only be bound to PVC's requesting that class. A PV with no storageClassName 
+# has no class and can only be bound to PVC's that request no particular class.
+
+# https://kubernetes.io/docs/concepts/storage/storage-classes/#local
+# https://kubernetes.io/docs/concepts/storage/volumes/#local
+# 
+# Setting reclaimPolicy when using kubernetes.io/no-provisioner does not affect anything.
+# 
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-storage
+# what volume plugin is used for provisioning PVs
+provisioner: kubernetes.io/no-provisioner
+# This mode instructs Kubernetes to wait to bind a PVC until a Pod using it is scheduled.
+# This setting tells the PV controller to not immediately bind a PVC
+# This ensures that the initial volume binding is compatible with any Pod resource requirements, selectors, affinity and anti-affinity policies, and more.
+volumeBindingMode: WaitForFirstConsumer
