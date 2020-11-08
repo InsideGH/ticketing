@@ -561,7 +561,7 @@ Exec mongo
     show dbs
     use orders
     db.tickets
-
+    db.tickets.find({})
 
 Typescripts
     - private/protected
@@ -811,3 +811,58 @@ SSL
     - kubectl apply -f infra/k8s-prod/ingress-srv.yaml 
       > ingress.networking.k8s.io/ingress-srv configured
       > service/ingress-nginx-controller unchanged
+
+
+
+Storage
+    You already have a PersistentVolume along with the corresponding storage medium provisioned and want to use that (without referring to a custom Storage Class or the default one)
+    In this case, just set storageClass to an empty string ("") in the PersistentVolumeClaim. This will suppress dynamic provisioning!
+
+    If storageClassName is set to an empty string (‘’) in the PVC, no storage class will be used (i.e.; dynamic provisioning is disabled for this PVC)
+
+
+    ReadWriteOnce -- the volume can be mounted as read-write by a single node
+    ReadOnlyMany -- the volume can be mounted read-only by many nodes
+    ReadWriteMany -- the volume can be mounted as read-write by many nodes
+
+
+Forward port from local machine into cluster mongo depl
+
+k port-forward tickets-mongo-depl-7bdd7998d9-gggbz 27017:27017
+
+cat drop_postgres.db.sql | psql -h 127.0.0.1 nats_streaming 1
+
+NOTICE:  table "serverinfo" does not exist, skipping
+DROP TABLE
+NOTICE:  table "clients" does not exist, skipping
+DROP TABLE
+NOTICE:  table "channels" does not exist, skipping
+DROP TABLE
+NOTICE:  index "idx_channelsname" does not exist, skipping
+DROP INDEX
+NOTICE:  table "messages" does not exist, skipping
+DROP TABLE
+NOTICE:  index "idx_msgstimestamp" does not exist, skipping
+DROP INDEX
+NOTICE:  table "subscriptions" does not exist, skipping
+DROP TABLE
+NOTICE:  table "subspending" does not exist, skipping
+DROP TABLE
+NOTICE:  index "idx_subspendingseq" does not exist, skipping
+DROP INDEX
+NOTICE:  table "storelock" does not exist, skipping
+DROP TABLE
+
+
+cat postgres.db.sql | psql -h 127.0.0.1 nats_streaming 1 
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+ALTER TABLE

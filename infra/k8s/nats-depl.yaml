@@ -17,13 +17,47 @@ spec:
       labels:
         app: nats
     spec:
+      initContainers:
+        - name: check-db-ready
+          image: postgres:alpine
+          command:
+            [
+              "sh",
+              "-c",
+              "until pg_isready -h nats-postgres-srv -p 5432; do echo waiting for database; sleep 2; done;",
+            ]
       containers:
         - name: nats
           # latest is default if not specified
-          image: nats-streaming:0.17.0
+          image: nats-streaming
+          env:
+            # Name of env variable inside our app
+            - name: NATS_DB_USER
+              valueFrom:
+                # If the config map does not exist, the pod will not start (CreateContainerConfigError)
+                configMapKeyRef:
+                  name: nats-config
+                  key: NATS_DB_USER
+            - name: NATS_DB_NAME
+              valueFrom:
+                # If the config map does not exist, the pod will not start (CreateContainerConfigError)
+                configMapKeyRef:
+                  name: nats-config
+                  key: NATS_DB_NAME
+            - name: NATS_DB_PASSWD
+              valueFrom:
+                secretKeyRef:
+                  name: nats-db-passwd-secret
+                  key: NATS_DB_PASSWD
           # args that are given to the primary command when a container is build from our image
           args:
             [
+              "-st",
+              "SQL",
+              "--sql_driver",
+              "postgres",
+              "--sql_source",
+              "user=$(NATS_DB_USER) password=$(NATS_DB_PASSWD) host=nats-postgres-srv port=5432 dbname=$(NATS_DB_NAME) sslmode=disable",
               "-p",
               "4222",
               "-m",
