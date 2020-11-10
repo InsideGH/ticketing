@@ -656,7 +656,9 @@ Digital ocean
     
     - list all context
         - k config view
-        - 
+    - delete a context
+        -  k config delete-context do-fra1-ticketing
+
     - change context
         - k config use-context docker-desktop
 
