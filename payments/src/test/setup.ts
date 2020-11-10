@@ -16,9 +16,9 @@ jest.mock('../nats-wrapper');
 
 let mongo: any;
 
-// defined here since it's used directly from the imports in the test ∆files.
+// defined here since it's used directly from the imports in the test files.
 process.env.STRIPE_KEY =
-  'sk_test_51Hij5pDpYqo5qlSL1jtc4tsMdJxNfiXV5ix239ad4yy9QT1QDAQOKCuWn4iocFcbJNq7c4rJm2RdyAwvb4sV1e2i00osSMvRpB';
+  'sk_test_51Hij5pDpYqo5qlSLwNAJNQVfEyodSIKdUdXrsZbt7bSbNmC5vFwsFPdBfyjeZJgNYA9LkA4ljzdnQVCkHjaKf0rn00x0WHSDxO';
 
 beforeAll(async () => {
   process.env.JWT_KEY = 'something';
