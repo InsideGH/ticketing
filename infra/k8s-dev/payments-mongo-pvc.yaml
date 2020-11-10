@@ -16,7 +16,8 @@ spec:
     path: "/tmp/ticketing/payments"
   claimRef:
     name: payments-mongo-pvc
-    namespace: default
+    # For some reason we need to have the namespace here event though we configure the namespace to the default
+    namespace: ticketing
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

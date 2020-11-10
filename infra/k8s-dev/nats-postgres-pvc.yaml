@@ -16,7 +16,8 @@ spec:
     path: "/tmp/ticketing/nats"
   claimRef:
     name: nats-postgres-pvc
-    namespace: default
+    # For some reason we need to have the namespace here event though we configure the namespace to the default
+    namespace: ticketing
 ---
 # If no storageClassName is defined it will use default storage class
 # List storage classes: 

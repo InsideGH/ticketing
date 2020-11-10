@@ -1,4 +1,4 @@
-apiVersion: skaffold/v2alpha3
+apiVersion: skaffold/v2beta8
 kind: Config
 deploy:
   # Telling skaffold that there are kubernetes files.
@@ -9,6 +9,10 @@ deploy:
     manifests:
       - ./infra/k8s-dev/*
       - ./infra/k8s/*
+    flags:
+      # additional flags passed on every command, both apply and delete.
+      global:
+      - --namespace=ticketing
 # Default skaffold tries to push to docker hub.
 build:
   local:
