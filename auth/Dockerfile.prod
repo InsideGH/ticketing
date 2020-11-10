@@ -1,0 +1,11 @@
+FROM node:alpine
+
+ENV NODE_ENV=production
+
+WORKDIR /app
+COPY . .
+RUN npm install --only=prod --quiet
+
+RUN npm run build
+
+CMD ["npm", "run", "prod"]

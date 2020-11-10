@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         # build image
-      - run: cd auth && docker build -t insidedocker/auth .
+      - run: cd auth && docker build -f Dockerfile.prod -t insidedocker/auth .
         # login to docker
       - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
         env:
