@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         # build image
-      - run: cd orders && docker build -t insidedocker/orders .
+      - run: cd orders && docker build -f Dockerfile.prod -t insidedocker/orders .
         # login to docker
       - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
         env:
