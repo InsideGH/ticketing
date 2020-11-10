@@ -12,6 +12,16 @@ This repo contains the output from the Udemy course [Microservices with NodeJS a
 
 Make sure that you are using the right kubectl context, that is either local or digital ocean.
 
+First thing is to create your kubectl namespace 'ticketing'
+
+```kubectl create namespace ticketing``` 
+
+Now locally, you most likely want to set the namespace as your new default so that you kubectl commands use this namespace.
+Skaffold doesn't care, it set the namespace it self. On Digital Ocean, the deployment is managed from GitHub actions where the namespace
+flag is used. 
+
+```kubectl config set-context --current --namespace=ticketing``` 
+
 ---
 ## Digital Ocean SSL
 
@@ -64,8 +74,6 @@ Since the Nats streaming server is configured to use postgres as data store we n
 
 > Bring up the postgres database:
 
-```k apply -f infra/k8s-dev/local-storage.yaml```
-
 ```k apply -f infra/k8s-dev/nats-postgres-pvc.yaml```
 
 ```k apply -f infra/k8s/nats-postgres-depl.yaml```
@@ -87,8 +95,6 @@ Since the Nats streaming server is configured to use postgres as data store we n
 ```k delete -f infra/k8s/nats-postgres-depl.yaml```
 
 ```k delete -f infra/k8s-dev/nats-postgres-pvc.yaml```
-
-```k delete -f infra/k8s-dev/local-storage.yaml```
 
 
 ## Initialize NATS postgres database (Digital Ocean)
@@ -122,3 +128,15 @@ Since the Nats streaming server is configured to use postgres as data store we n
 ```skaffold dev```
 
 after a while, you will see the logs from all the services. If something goes wrong, CTRL-C and try again.
+
+# Gotchas
+
+1. If you want to change the namespace from 'ticketing' to something else you need to do the following changes
+
+    1.0 Update the first command in this readme, where the namespace is created and set as default.
+
+    1.1 Change in skaffold.yaml file the parameter ```deploy.kubectl.flags.global```
+
+    1.2 In the ```./infra/k8s-dev/*.pvc``` files, change the pre-defined PV spec.claimRef.namespace
+
+    1.3 The github workflows (```./.github/workflows/```) needs to be modified.
