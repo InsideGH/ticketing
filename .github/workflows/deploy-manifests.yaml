@@ -19,6 +19,10 @@ jobs:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         # connect to DO cluster
       - run: doctl kubernetes cluster kubeconfig save ticketing
-        # apply all files in the infra/k8s folder
-      - run: kubectl apply -f infra/k8s --namespace=ticketing && kubectl apply -f infra/k8s-prod --namespace=ticketing
- 
+        # apply all files in the infra/k8s folder using namespace
+      - run: kubectl apply -f infra/k8s --namespace=ticketing
+        # apply all files in the infra/k8s-prod folder using namespace
+      - run: kubectl apply -f infra/k8s-prod --namespace=ticketing
+        # we need to have these files in their own namespaces, that is not specifying namespace
+      - run: kubectl apply -f infra/k8s-prod-no-namespace
+
