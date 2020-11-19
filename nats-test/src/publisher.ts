@@ -43,7 +43,7 @@ stan.on('connect', async () => {
   await publisher.publish({
     id: '123',
     title: 'concert',
-    price: 20,
+    price: new Date().getTime(),
   });
 
   // const data = JSON.stringify({

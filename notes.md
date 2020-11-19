@@ -868,3 +868,17 @@ CREATE TABLE
 CREATE INDEX
 CREATE TABLE
 ALTER TABLE
+
+
+
+Set docker to point to minikube
+eval $(minikube docker-env)
+
+Push to minikube docker
+docker build -t hello-node:v1 .
+
+Set your deployment to not pull IfNotPresent
+K8S default is set to "Always" Change to "IfNotPresent"
+
+imagePullPolicy: IfNotPresent
+

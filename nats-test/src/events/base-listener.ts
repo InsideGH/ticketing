@@ -38,7 +38,7 @@ export abstract class Listener<T extends Event> {
     subscription.on('message', (msg: Message) => {
       const parsedData = this.parseMessage(msg);
       this.onMessage(parsedData, msg);
-      msg.ack();
+      // msg.ack();
     });
   }
 
